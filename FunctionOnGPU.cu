@@ -24,54 +24,54 @@ __device__ void computeWeight(Pixel pixel, int angle,double *x_coef, double *y_c
   // if(a == 1)printf("Compute : `x_min:%lf   y_Min:%lf\n",w->x_min_del,w->y_min_del);
 }
 
-__device__ void Reproj(ProjectionSize prj,float *d_submodel, Weight wt,float *d_s,float *d_c,int index)
+__device__ void Reproj(ProjectionSize prj,float *d_submodel, Weight wt,float *d_s,float *d_c,int index,int ang)
 {
   	int n;
 	//if(a==1) printf("Oringinal a:%lf \n",*c);
 	if(wt.x_min >= 0 && wt.x_min < prj.X && wt.y_min >= 0 && wt.y_min < prj.Y){ //(x_min, y_min)
-		n = wt.x_min + wt.y_min * prj.X;
+		n = wt.x_min + wt.y_min * prj.X + ang*prj.X*prj.Y;
 		atomicAdd(&d_s[n],(1-wt.x_min_del) * (1-wt.y_min_del)*d_submodel[index]);
 		atomicAdd(&d_c[n],(1-wt.x_min_del) * (1-wt.y_min_del));
 	}
 	if((wt.x_min+1) >= 0 && (wt.x_min+1) < prj.X && wt.y_min >= 0 && wt.y_min < prj.Y){ //(x_min+1, y_min)
-		n = wt.x_min+1 + wt.y_min * prj.X;
+		n = wt.x_min+1 + wt.y_min * prj.X + ang*prj.X*prj.Y;
 		atomicAdd(&d_s[n],wt.x_min_del * (1-wt.y_min_del)*d_submodel[index]);
 		atomicAdd(&d_c[n],wt.x_min_del * (1-wt.y_min_del));
 	}
 	if(wt.x_min >= 0 && wt.x_min < prj.X && (wt.y_min+1) >= 0 && (wt.y_min+1) < prj.Y){ //(x_min, y_min+1)
-		n = wt.x_min + (wt.y_min+1) * prj.X;
+		n = wt.x_min + (wt.y_min+1) * prj.X + ang*prj.X*prj.Y;
 		atomicAdd(&d_s[n],(1-wt.x_min_del) * wt.y_min_del*d_submodel[index]);
 		atomicAdd(&d_c[n],(1-wt.x_min_del) * wt.y_min_del);
 	}
 	if((wt.x_min+1) >= 0 && (wt.x_min+1) < prj.X && (wt.y_min+1) >= 0 && (wt.y_min+1) < prj.Y){ //(x_min+1, y_min+1)
-		n = wt.x_min+1 + (wt.y_min+1) * prj.X;
+		n = wt.x_min+1 + (wt.y_min+1) * prj.X + ang*prj.X*prj.Y;
 		atomicAdd(&d_s[n],wt.x_min_del * wt.y_min_del*d_submodel[index]);
 		atomicAdd(&d_c[n],wt.x_min_del * wt.y_min_del);
 	}
 //	if(a == 1)printf("prj.x:%d  prj.Y:%d  x_min:%d   y_min:%d   x_min_del:%lf   y_min_del:%lf  c:%lf \n",prj.X,prj.Y,wt.x_min,wt.y_min,wt.x_min_del,wt.y_min_del,*c);
 }
 
-__device__ void BilinearValue(ProjectionSize prj,float *prj_data, Weight wt,double *s,double *c)
+__device__ void BilinearValue(ProjectionSize prj,float *prj_data, Weight wt,double *s,double *c,int ang)
 {
   	int n;
 	//if(a==1) printf("Oringinal a:%lf \n",*c);
 	if(wt.x_min >= 0 && wt.x_min < prj.X && wt.y_min >= 0 && wt.y_min < prj.Y){ //(x_min, y_min)
-		n = wt.x_min + wt.y_min * prj.X;
+		n = wt.x_min + wt.y_min * prj.X + ang*prj.X*prj.Y;
 		*s += (1-wt.x_min_del) * (1-wt.y_min_del) * prj_data[n];
 		*c += (1-wt.x_min_del) * (1-wt.y_min_del);
 	}
 	if((wt.x_min+1) >= 0 && (wt.x_min+1) < prj.X && wt.y_min >= 0 && wt.y_min < prj.Y){ //(x_min+1, y_min)
-		n = wt.x_min+1 + wt.y_min * prj.X;
+		n = wt.x_min+1 + wt.y_min * prj.X + ang*prj.X*prj.Y;
 		*s += wt.x_min_del * (1-wt.y_min_del) * prj_data[n];
 		*c += wt.x_min_del * (1-wt.y_min_del);
 	}
 	if(wt.x_min >= 0 && wt.x_min < prj.X && (wt.y_min+1) >= 0 && (wt.y_min+1) < prj.Y){ //(x_min, y_min+1)
-		n = wt.x_min + (wt.y_min+1) * prj.X;
+		n = wt.x_min + (wt.y_min+1) * prj.X + ang*prj.X*prj.Y;
 		*s += (1-wt.x_min_del) * wt.y_min_del * prj_data[n];
 		*c += (1-wt.x_min_del) * wt.y_min_del;
 	}
 	if((wt.x_min+1) >= 0 && (wt.x_min+1) < prj.X && (wt.y_min+1) >= 0 && (wt.y_min+1) < prj.Y){ //(x_min+1, y_min+1)
-		n = wt.x_min+1 + (wt.y_min+1) * prj.X;
+		n = wt.x_min+1 + (wt.y_min+1) * prj.X + ang*prj.X*prj.Y;
 		*s += wt.x_min_del * wt.y_min_del * prj_data[n];
 		*c += wt.x_min_del * wt.y_min_del;
 	}
@@ -97,7 +97,7 @@ __global__ void backProjOnGPU(ProjectionSize prj,VolumeSize vol,double *x_coef,d
     for(int angle=0;angle<prj.AngN;angle++)
     {
         computeWeight(p,angle,x_coef,y_coef,&w);
-        BilinearValue(prj,prj_data,w,&s,&c);
+        BilinearValue(prj,prj_data,w,&s,&c,angle);
     }
     //if(x == 30 && y ==100 && z == 1+slice_start) printf("slice_index:%d  index:%d  (%f %f %f)  ON GPU\n",slice_index,index,s,c,s/c);
     if(c!=0.0f) 
@@ -126,7 +126,7 @@ __global__ void sirtBackProjOnGPU(ProjectionSize prj,VolumeSize vol,double *x_co
     for(int angle=0;angle<prj.AngN;angle++)
     {
         computeWeight(p,angle,x_coef,y_coef,&w);
-        BilinearValue(prj,prj_data,w,&s,&c);
+        BilinearValue(prj,prj_data,w,&s,&c,angle);
     }
     if(c!=0.0f) 
     {
@@ -324,7 +324,7 @@ __global__ void computeDivisor(ProjectionSize prj,VolumeSize vol,double *d_x_coe
     for(int angle=0;angle<prj.AngN;angle++)
     {
         computeWeight(p,angle,d_x_coef,d_y_coef,&w);
-        Reproj(prj,d_submodel,w,d_s,d_c,slice_index);
+        Reproj(prj,d_submodel,w,d_s,d_c,slice_index,angle);
     }
 }
 
