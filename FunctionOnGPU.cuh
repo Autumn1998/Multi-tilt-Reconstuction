@@ -30,11 +30,11 @@
 	} while(0);
 void printCudaError();
 __device__ void computeWeight(Pixel pixel, int angle,double *x_coef, double *y_coef, Weight *w );
-__device__ void BilinearValue(ProjectionSize prj,float *prj_data, Weight wt,double *s,double *c);
+__device__ void BilinearValue(ProjectionSize prj,float *prj_data, Weight wt,double *s,double *c,int ang);
 __global__ void backProjOnGPU(ProjectionSize prj,VolumeSize vol,double *x_coef,double *y_coef, float *prj_data, float *model, int slice_start);
 __global__ void initialZOnGPU(VolumeSize vol, float *d_w, float *d_w_avg, float *d_z);
 __global__ void computeDivisor(ProjectionSize prj,VolumeSize vol,double *d_x_coef,double *d_y_coef,float *d_s,float *d_c,float* d_submodel,int slice_start,int slice_end);	
-__device__ void Reproj(ProjectionSize prj,float *d_submodel, Weight wt,float *d_s,float *d_c,int index);
+__device__ void Reproj(ProjectionSize prj,float *d_submodel, Weight wt,float *d_s,float *d_c,int index,int ang);
 __global__ void sirtBackProjOnGPU(ProjectionSize prj,VolumeSize vol,double *x_coef,double *y_coef, float *prj_data, float *model, int slice_start,double sirt_step);
 __global__ void updateWOnGPU(VolumeSize vol, float *d_w, float *d_v, float *d_z,float step);
 
