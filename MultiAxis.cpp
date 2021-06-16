@@ -203,14 +203,25 @@ int main(int argc,char *argv[])
 	if(myid==0)printf("---------------------------------------------------Total time:%lf s ,%lf min\n",(double)(end_time-start_time)/CLOCKS_PER_SEC,(double)(end_time-start_time)/(CLOCKS_PER_SEC*60));
 	
 	if(myid==0) printf("Ready to write\n");
-    if(myid==0)
+ /*   if(myid==0)
     {
         if(updataAndWriteModel(&opts,&model,initial_model) < 0) {
             printf("***ERROR OCCURED WHEN WRITE MODEL.\n");
             exit(-1);
         }
+    }*/
+    MPI_Barrier(MPI_COMM_WORLD);
+    if(myid==0)
+    {
+        OutputModel res;
+        res.slc = divideSlice(0,1,input_data.vol.Z,input_data.vol.Zstart);
+        //printf("Thinkness: %d %d\n",res.slc.z_start,res.slc.z_end);
+        res.initialize(input_data.vol);
+        if(updataAndWriteModel(&opts,&res,initial_model) < 0) {
+            printf("***ERROR OCCURED WHEN WRITE MODEL.\n");
+            exit(-1);
+        }
     }
-
     MPI_Barrier(MPI_COMM_WORLD);
     MPI_Finalize();
 	return 0;
