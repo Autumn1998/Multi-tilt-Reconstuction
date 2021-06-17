@@ -211,6 +211,10 @@ void runSIRTOnGPU(int i,int leader_id, int group_id,DataToUse *local_data,Output
    
     for(int cnt=0;cnt<10;cnt++)
 	{
+	memset(h_s,0,mrc_size);
+	memset(h_c,0,mrc_size);
+    CHECK(cudaMemcpyAsync(d_s,h_s,mrc_size,cudaMemcpyHostToDevice,stream));
+    CHECK(cudaMemcpyAsync(d_c,h_c,mrc_size,cudaMemcpyHostToDevice,stream));
 		computeDivisor<<<grid,block,0,stream>>>(input_data->prj,input_data->vol,d_x_coef,d_y_coef,d_s,d_c,d_submodel,model->slc.z_start,model->slc.z_end);
 		printCudaError();
 
