@@ -56,7 +56,9 @@ void reconstructModel(int myid,int numprocs,float *w,float *z,DataToUse *local_d
 		{
 			//runMaceOnGPU(myid,model,opts,v,w,z,opts->mace_step);	
 			runMaceOnCPU(myid,v,w,z,model->vol.X*model->vol.Y*model->vol.Z,opts->mace_step);	
-		}else memset(w,0,sizeof(float)*model->vol.X*model->vol.Y*model->vol.Z);
+		}
+		MPI_Barrier(tilt_comm);
+		MPI_Bcast(w,model->vol.X*model->vol.Y*model->vol.Z,MPI_FLOAT,0,tilt_comm);
   //      printf("ID:%d,  after mace   W[10000]:%f\n",myid,w[10000]);
 		MPI_Barrier(MPI_COMM_WORLD);
 		MPI_Reduce_BIG(w,w_avg,(long long)model->vol.X*model->vol.Y*model->vol.Z ,MPI_FLOAT,MPI_SUM,0,MPI_COMM_WORLD);
